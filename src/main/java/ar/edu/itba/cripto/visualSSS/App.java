@@ -65,6 +65,7 @@ public class App {
 			}
 
 			rnd = new Random();
+			rnd.setSeed(10);
 			if (tipoOperacion) {
 				encode();
 				for(BMPImage img: listSombras){
@@ -178,10 +179,12 @@ public class App {
 
 	private static BMPImage readImage(String filename) {
 		File file = null;
-		for (int i = 0; i < listOfFiles.length; i++)
-			if (listOfFiles[i].getName().equals(filename))// poner la opcion
+		for (int i = 0; i < listOfFiles.length; i++) {
+			if (listOfFiles[i].getName().equals(filename)) { // poner la opcion
 				// que corresponda
 				file = listOfFiles[i];
+			}
+		}
 		BMPImage img = new BMPImage(filename, file);
 		return img;
 	}
