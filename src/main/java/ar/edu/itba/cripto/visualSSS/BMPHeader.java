@@ -96,6 +96,8 @@ public class BMPHeader {
 			biClrImportant = ByteSwapper.swap(randomAccessFile
 					.readInt());
 			
+			randomAccessFile.seek(offSet); //Por las dudas
+			
 			
 //			randomAccessFile quedo apuntando a los pixeles de la imagen
 		} catch (IOException e) {
