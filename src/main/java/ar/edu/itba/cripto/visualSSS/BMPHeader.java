@@ -48,53 +48,52 @@ public class BMPHeader {
 		try {
 			randomAccessFile = new RandomAccessFile(file, "rw");
 			id = randomAccessFile.readChar();
-			size = Integer.reverseBytes(randomAccessFile.readInt());
-			seed = Short.reverseBytes(randomAccessFile.readShort()); // TODO:
+			size = ByteSwapper.swap(randomAccessFile.readInt());
+			seed = ByteSwapper.swap(randomAccessFile.readShort()); // TODO:
 																		// Escribirselo
 																		// al
 																		// archivo
-			shadeNumber = Short.reverseBytes(randomAccessFile.readShort()); // TODO:
+			shadeNumber = ByteSwapper.swap(randomAccessFile.readShort()); // TODO:
 																			// Escribirselo
 																			// al
 																			// archivo
-			offSet = Integer.reverseBytes(randomAccessFile.readInt());
+			offSet = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biSize 4 Header Size - Must be at least 40
-			biSize = Integer.reverseBytes(randomAccessFile.readInt());
+			biSize = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biWidth 4 Image width in pixelsç
-			biWidth = Integer.reverseBytes(randomAccessFile.readInt());
+			biWidth = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biHeight 4 Image height in pixelsç
-			biHeight = Integer.reverseBytes(randomAccessFile.readInt());
+			biHeight = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biPlanes 2 Must be 1
-			biPlanes[0] = Integer.reverseBytes(randomAccessFile.readByte());
-			biPlanes[1] = Integer.reverseBytes(randomAccessFile.readByte());
+			biPlanes[0] = ByteSwapper.swap(randomAccessFile.readByte());
+			biPlanes[1] = ByteSwapper.swap(randomAccessFile.readByte());
 			// biBitCount 2 Bits per pixel - 1, 4, 8, 16, 24, or 32
-			biBitCount[0] = Integer.reverseBytes(randomAccessFile.readByte());
-			biBitCount[1] = Integer.reverseBytes(randomAccessFile.readByte());
+			biBitCount[0] = ByteSwapper.swap(randomAccessFile.readByte());
+			biBitCount[1] = ByteSwapper.swap(randomAccessFile.readByte());
 
 			// biCompression 4 Compression type (0 = uncompressed)
-			biCompression = Integer
-					.reverseBytes(randomAccessFile.readInt());
+			biCompression = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biSizeImage 4 Image Size - may be zero for uncompressed images
-			biSizeImage = Integer.reverseBytes(randomAccessFile.readInt());
+			biSizeImage = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biXPelsPerMeter 4 Preferred resolution in pixels per meter
-			biXPelsPerMeter = Integer.reverseBytes(randomAccessFile
+			biXPelsPerMeter = ByteSwapper.swap(randomAccessFile
 					.readInt());
 
 			// biYPelsPerMeter 4 Preferred resolution in pixels per meter
-			biYPelsPerMeter = Integer.reverseBytes(randomAccessFile
+			biYPelsPerMeter = ByteSwapper.swap(randomAccessFile
 					.readInt());
 
 			// biClrUsed 4 Number Color Map entries that are actually used
-			biClrUsed = Integer.reverseBytes(randomAccessFile.readInt());
+			biClrUsed = ByteSwapper.swap(randomAccessFile.readInt());
 			// biClrImportant 4 Number of significant colors
 
-			biClrImportant = Integer.reverseBytes(randomAccessFile
+			biClrImportant = ByteSwapper.swap(randomAccessFile
 					.readInt());
 			
 			

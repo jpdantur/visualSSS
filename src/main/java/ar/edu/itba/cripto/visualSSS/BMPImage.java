@@ -21,7 +21,7 @@ public class BMPImage {
 		this.filename = filename;
 		header = new BMPHeader(file, i);
 		loadData();
-		this.sombraNro = i;
+		this.sombraNro = header.getShadeNumber();
 	}
 
 	private void loadData() {
