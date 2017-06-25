@@ -1,6 +1,8 @@
 package ar.edu.itba.cripto.visualSSS;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BMPImage {
@@ -17,14 +19,25 @@ public class BMPImage {
 		// TODO constructor para las sombras, hay que indicar en el header que
 		// tipo de sombra es
 		this.filename = filename;
-		header=new BMPHeader(file, i);
-		loadData(file, header);
+		header = new BMPHeader(file, i);
+		loadData();
 		this.sombraNro = i;
 	}
 
-	private void loadData(File file, BMPHeader header2) {
-		// TODO Auto-generated method stub
-		
+	private void loadData() {
+		data = new ArrayList<Integer>();
+		for (int i = 0; i < header.getBiWidth(); i++) {
+			for (int j = 0; j < header.getBiHeight(); j++) {
+
+				try {
+					data.add(Character.getNumericValue(header
+							.getRandomAccessFile().readChar()));
+				} catch (IOException e) {
+					System.out.println("Error al leer de archivo");
+					;
+				}
+			}
+		}
 	}
 
 	public BMPImage(String filename, File file) {
@@ -34,13 +47,22 @@ public class BMPImage {
 	public BMPImage(String filename, BMPImage bmpImage) {
 		this.filename = filename;
 		this.sombraNro = 0;
-		header=new BMPHeader(bmpImage.header, sombraNro);
+		header = new BMPHeader(bmpImage.header, sombraNro);
 		loadData(bmpImage);
 	}
 
 	private void loadData(BMPImage bmpImage) {
-		// TODO Auto-generated method stub
-		
+		data = new ArrayList<Integer>();
+		for (int i = 0; i < bmpImage.header.getBiWidth(); i++) {
+			for (int j = 0; j < header.getBiHeight(); j++) {
+				try {
+					data.add(Character.getNumericValue(bmpImage.header
+							.getRandomAccessFile().readChar()));
+				} catch (IOException e) {
+					System.out.println("Error al leer de archivo");
+				}
+			}
+		}
 	}
 
 	public List<Integer> getData() {
@@ -48,12 +70,13 @@ public class BMPImage {
 	}
 
 	public BMPHeader getHeader() {
-		return null;
+		return header;
 	}
 
 	public void save(File folder) {
 		// TODO guardar imagen en el directorio que se indica
-		
+
 	}
+	
 
 }

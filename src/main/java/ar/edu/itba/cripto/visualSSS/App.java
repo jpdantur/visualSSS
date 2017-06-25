@@ -2,7 +2,6 @@ package ar.edu.itba.cripto.visualSSS;
 
 import java.awt.Point;
 import java.io.File;
-import java.sql.Savepoint;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,8 +24,6 @@ public class App {
 	public static void main(String[] args) {
 		try {
 			Option[] recognized = ArgumentParser.getOptions(args);
-//			TODO CONECTAR EL PARSER CON LO QUE SIGUE ADECUADAMENTE.
-			// validarConfiguracion(recognized);
 			for (Option o : recognized) {
 				System.out.println(o.getOpt() + " : "
 						+ Arrays.toString(o.getValues()));
@@ -68,7 +65,7 @@ public class App {
 			rnd.setSeed(10);
 			if (tipoOperacion) {
 				encode();
-				for(BMPImage img: listSombras){
+				for (BMPImage img : listSombras) {
 					img.save(folder);
 				}
 			} else {
@@ -90,9 +87,13 @@ public class App {
 	private static List<BMPImage> loadSombras() {
 		List<BMPImage> imgSombras = new ArrayList<BMPImage>();
 		for (int i = 0; i < listOfFiles.length; i++) {
-			// TODO: que valide si se trata de una imagen bmp y cargue el valor
-
-			BMPImage img = new BMPImage(listOfFiles[i].getName(), listOfFiles[i]);
+			String extension = getExtension(listOfFiles[i].getName()
+					.toLowerCase());
+			if (!extension.equals("bmp")) {
+				continue;
+			}
+			BMPImage img = new BMPImage(listOfFiles[i].getName(),
+					listOfFiles[i]);
 			imgSombras.add(img);
 			if (imgSombras.size() == minimoParticiones) {
 				break;
@@ -105,7 +106,11 @@ public class App {
 		List<BMPImage> imgSombras = new ArrayList<BMPImage>();
 		File file = null;
 		for (int i = 0; i < listOfFiles.length; i++) {
-			// TODO: que valide si se trata de una imagen bmp y cargue el valor
+			String extension = getExtension(listOfFiles[i].getName()
+					.toLowerCase());
+			if (!extension.equals("bmp")) {
+				continue;
+			}
 			if (listOfFiles[i].getName().equals(filename))
 				file = listOfFiles[i];
 		}
@@ -119,33 +124,90 @@ public class App {
 		return imgSombras;
 	}
 
-	private static BMPImage decode() {
-		// TODO Auto-generated method stub
-		return null;
+	private static void decode() {
+		int minData=getMinData(listSombras);
+		for(int i=0; i <minData; ){
+			List<Point> pSombraList = cargarPuntosSombras(minData);
+			int color=lagrange(pSombraList);
+			secretRecover.getData().set(i, color);
+			minData+=8;
+		}
+	}
+
+	private static int lagrange(List<Point> pSombraList) {
+		double[] x=new double[pSombraList.size()];
+		double[] y=new double[pSombraList.size()];
+		for(int i=0; i <pSombraList.size(); i++){
+			x[i]=pSombraList.get(i).getX();
+			y[i]=pSombraList.get(i).getY();
+		}
+		double[] result = LagrangeInterpolation.findPolynomialFactors(x, y);
+		return (int) result[pSombraList.size()-1];
+	}
+
+	private static List<Point> cargarPuntosSombras(int minData) {
+		ArrayList<Point> list = new ArrayList<Point>();
+		for(int i =0 ; i<listSombras.size(); i++){
+			int value=0;
+			for(int k=0; k<8; k++){
+				int color=listSombras.get(i).getData().get(minData+k);
+				value += Math.pow(2, k)* (color%2);
+			}
+			list.add(new Point(listSombras.get(i).getHeader().getShadeNumber(), value));
+		}
+		return list;	
+	}
+
+	private static int getMinData(List<BMPImage> listSombras2) {
+		int min=listSombras2.get(0).getData().size();
+		for(BMPImage img:listSombras2){
+			if(img.getData().size()<min)
+				min=img.getData().size();
+		}
+		return min;
 	}
 
 	private static void encode() {
 		int index = 0;
 		while (index <= secret.getData().size()) {
 			Integer wdSecret = secret.getData().get(index);
-			List<Integer> polinomioCoef = new ArrayList<Integer>(
-					minimoParticiones);
-			polinomioCoef.add(wdSecret);
-			while (polinomioCoef.size() < minimoParticiones - 1) {
-				polinomioCoef.add(rnd.nextInt(256));
+			List<Point> psombrasList = new ArrayList<Point>();
+			while (secretLoop(psombrasList)) {
+				List<Integer> polinomioCoef = new ArrayList<Integer>(
+						minimoParticiones);
+				polinomioCoef.add(wdSecret);
+				while (polinomioCoef.size() < minimoParticiones - 1) {
+					polinomioCoef.add(rnd.nextInt(256));
+				}
+				for (int i = 0; i < totalParticiones; i++) {
+					psombrasList.add(generarSombra(i, polinomioCoef));
+				}
+				wdSecret=wdSecret-1;
+				polinomioCoef.clear();
 			}
 			for (int i = 0; i < totalParticiones; i++) {
-				Point sombra = generarSombra(i, polinomioCoef);
-				addSombraEnArchivo(i, index, sombra);
+				addSombraEnArchivo(i, index, psombrasList.get(i));
 			}
 		}
+	}
+
+	private static boolean secretLoop(List<Point> psombrasList) {
+		if (psombrasList.isEmpty()) {
+			return true;
+		}
+		for (Point p : psombrasList) {
+			if (p.y == 256){
+				psombrasList.clear();
+				return true;
+			}
+		}
+		return false;
+
 	}
 
 	private static void addSombraEnArchivo(int i, int index, Point sombra) {
 		BMPImage img = listSombras.get(i);
 		for (int j = 0; j < 8; j++) {
-			// reemplazar el bit menos significativo o ver como dice en la
-			// consigna
 			byte color = new Integer(sombra.y).byteValue();
 			byte somb = ((Integer) ((Double) Math.pow(2, j)).intValue())
 					.byteValue();
@@ -158,7 +220,6 @@ public class App {
 			if (res != 0) {
 				resultado++;
 			}
-			// TODO hay otro caso?
 			img.getData().set(index * 8 + j, resultado);
 		}
 
@@ -187,5 +248,15 @@ public class App {
 		}
 		BMPImage img = new BMPImage(filename, file);
 		return img;
+	}
+
+	public static String getExtension(String s) {
+		String ext = null;
+		int i = s.lastIndexOf('.');
+
+		if (i > 0 && i < s.length() - 1) {
+			ext = s.substring(i + 1).toLowerCase();
+		}
+		return ext;
 	}
 }
