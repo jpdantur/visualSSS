@@ -151,7 +151,7 @@ public class App {
 			int value=0;
 			for(int k=0; k<8; k++){
 				int color=listSombras.get(i).getData().get(minData+k);
-				value += Math.pow(2, k)* (color%2);
+				value = value<<1+ (color%2);
 			}
 			list.add(new Point(listSombras.get(i).getHeader().getShadeNumber(), value));
 		}
