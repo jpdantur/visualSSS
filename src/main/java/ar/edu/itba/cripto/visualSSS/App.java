@@ -20,6 +20,7 @@ public class App {
 	private static File[] listOfFiles;
 	private static List<BMPImage> listSombras;
 	private static File folder;
+	private static int seed = 10;
 
 	public static void main(String[] args) {
 		try {
@@ -62,7 +63,7 @@ public class App {
 			}
 
 			rnd = new Random();
-			rnd.setSeed(10);
+			rnd.setSeed(seed);
 			if (tipoOperacion) {
 				encode();
 				for (BMPImage img : listSombras) {
@@ -189,10 +190,11 @@ public class App {
 	}
 
 	private static int getMinData(List<BMPImage> listSombras2) {
-		int min=listSombras2.get(0).getData().size();
+		int min=Integer.MAX_VALUE;
 		for(BMPImage img:listSombras2){
-			if(img.getData().size()<min)
-				min=img.getData().size();
+			int data = (int)Math.floor(img.getHeader().getBiHeight() * minimoParticiones / 8.0) * img.getHeader().getBiWidth();
+			if(data<min)
+				min=data;
 		}
 		return min;
 	}
@@ -200,25 +202,61 @@ public class App {
 	private static void encode() {
 		int index = 0;
 		while (index < secret.getData().size()) {
-			Integer wdSecret = secret.getData().get(index);
+			//Integer wdSecret = secret.getData().get(index);
+			List<Integer> polinomioCoef = new ArrayList<Integer>(
+					minimoParticiones);
+			for (int i = 0; i < minimoParticiones; i++) {
+				byte rndValue= new Integer(rnd.nextInt(256)).byteValue();
+				polinomioCoef.add(secret.getData().get(index + i) ^ rndValue);
+				i++;
+			}
+			
 			List<Point> psombrasList = new ArrayList<Point>();
-			while (secretLoop(psombrasList)) {
-				List<Integer> polinomioCoef = new ArrayList<Integer>(
-						minimoParticiones);
-				polinomioCoef.add(wdSecret);
-				while (polinomioCoef.size() < minimoParticiones - 1) {
-					polinomioCoef.add(rnd.nextInt(256));
-				}
+			while (psombrasList.isEmpty()) {
 				for (int i = 0; i < totalParticiones; i++) {
 					psombrasList.add(generarSombra(i, polinomioCoef));
 				}
-				wdSecret=wdSecret-1;
-				polinomioCoef.clear();
+				
+				for (int i = 0; i < psombrasList.size(); i++) {
+					if (psombrasList.get(i).y == 256) {
+						for (int j = 0; j < polinomioCoef.size(); j++) {
+							int coef = polinomioCoef.get(j);
+							if ( coef > 0) {
+								polinomioCoef.set(j, coef - 1);
+								psombrasList.clear();
+								break;
+							}
+						}
+					}
+				}
 			}
+			
 			for (int i = 0; i < totalParticiones; i++) {
 				addSombraEnArchivo(i, index, psombrasList.get(i));
 			}
-			index++;
+			
+			index = index + minimoParticiones;
+			
+			
+			
+//			List<Point> psombrasList = new ArrayList<Point>();
+//			while (secretLoop(psombrasList)) {
+//				List<Integer> polinomioCoef = new ArrayList<Integer>(
+//						minimoParticiones);
+//				polinomioCoef.add(wdSecret);
+//				while (polinomioCoef.size() < minimoParticiones - 1) {
+//					polinomioCoef.add(rnd.nextInt(256));
+//				}
+//				for (int i = 0; i < totalParticiones; i++) {
+//					psombrasList.add(generarSombra(i, polinomioCoef));
+//				}
+//				wdSecret=wdSecret-1;
+//				polinomioCoef.clear();
+//			}
+//			for (int i = 0; i < totalParticiones; i++) {
+//				addSombraEnArchivo(i, index, psombrasList.get(i));
+//			}
+//			index++;
 		}
 	}
 
