@@ -207,7 +207,7 @@ public class App {
 					minimoParticiones);
 			for (int i = 0; i < minimoParticiones; i++) {
 				byte rndValue= new Integer(rnd.nextInt(256)).byteValue();
-				polinomioCoef.add(secret.getData().get(index + i) ^ rndValue);
+				polinomioCoef.add((secret.getData().get(index + i) ^ rndValue) & 0xff);
 				i++;
 			}
 			
@@ -236,6 +236,7 @@ public class App {
 			}
 			
 			index = index + minimoParticiones;
+			System.out.println("Indice: "+index);
 			
 			
 			
@@ -282,14 +283,15 @@ public class App {
 					.byteValue();
 			int res = color & somb;
 
-			int resultado = sombra.y;
-			if (sombra.y % 2 != 0) {
-				resultado -= sombra.y % 2;
+			int resultado = img.getData().get(index+j);
+			if (resultado % 2 != 0) {
+				resultado--;
 			}
 			if (res != 0) {
 				resultado++;
 			}
-			img.getData().set(index * 8 + j, resultado);
+			//System.out.println("i: "+i+"Index: "+(index*8+j));
+			img.getData().set(index + j, resultado);
 		}
 
 	}
