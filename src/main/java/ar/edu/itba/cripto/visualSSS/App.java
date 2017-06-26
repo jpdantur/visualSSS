@@ -87,6 +87,7 @@ public class App {
 	private static List<BMPImage> loadSombras() {
 		List<BMPImage> imgSombras = new ArrayList<BMPImage>();
 		for (int i = 0; i < listOfFiles.length; i++) {
+
 			String extension = getExtension(listOfFiles[i].getName()
 					.toLowerCase());
 			if (!extension.equals("bmp")) {
@@ -106,8 +107,10 @@ public class App {
 		List<BMPImage> imgSombras = new ArrayList<BMPImage>();
 		File file = null;
 		for (int i = 0; i < listOfFiles.length; i++) {
+			System.out.println(listOfFiles[i].getName());
 			String extension = getExtension(listOfFiles[i].getName()
 					.toLowerCase());
+			System.out.println(extension);
 			if (!extension.equals("bmp")) {
 				continue;
 			}
@@ -169,7 +172,7 @@ public class App {
 
 	private static void encode() {
 		int index = 0;
-		while (index <= secret.getData().size()) {
+		while (index < secret.getData().size()) {
 			Integer wdSecret = secret.getData().get(index);
 			List<Point> psombrasList = new ArrayList<Point>();
 			while (secretLoop(psombrasList)) {
@@ -188,6 +191,7 @@ public class App {
 			for (int i = 0; i < totalParticiones; i++) {
 				addSombraEnArchivo(i, index, psombrasList.get(i));
 			}
+			index++;
 		}
 	}
 
@@ -239,8 +243,10 @@ public class App {
 	}
 
 	private static BMPImage readImage(String filename) {
+		//System.out.println(filename);
 		File file = null;
 		for (int i = 0; i < listOfFiles.length; i++) {
+			//System.out.println(listOfFiles[i].getName());
 			if (listOfFiles[i].getName().equals(filename)) { // poner la opcion
 				// que corresponda
 				file = listOfFiles[i];
@@ -251,7 +257,7 @@ public class App {
 	}
 
 	public static String getExtension(String s) {
-		String ext = null;
+		String ext = "";
 		int i = s.lastIndexOf('.');
 
 		if (i > 0 && i < s.length() - 1) {

@@ -77,6 +77,8 @@ public class LagrangeInterpolation
 
     for (int i = 0; i < 3; i++)
       System.out.println (f[i]);
+    
+    System.out.println(2.5%11);
   }
 }
 
