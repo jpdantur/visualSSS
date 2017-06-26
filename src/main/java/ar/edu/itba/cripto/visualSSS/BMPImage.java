@@ -26,17 +26,21 @@ public class BMPImage {
 
 	private void loadData() {
 		data = new ArrayList<Integer>();
-		for (int i = 0; i < header.getBiWidth(); i++) {
-			for (int j = 0; j < header.getBiHeight(); j++) {
+		//System.out.println(header.getBiHeight()*header.getBiWidth());
+		System.out.println("hhh: "+header.getBiHeight()*header.getBiWidth());
+		for (int i = 0; i < header.getBiHeight()*header.getBiWidth(); i++) {
 
 				try {
 					data.add(Character.getNumericValue(header
-							.getRandomAccessFile().readChar()));
+							.getRandomAccessFile().readByte()));
 				} catch (IOException e) {
-					System.out.println("Error al leer de archivo");
+					//e.printStackTrace();
+					System.out.println(header.getBiHeight()*header.getBiWidth());
+					System.out.println("fdsa "+data.size());
+					System.out.println("Error al leer de archivo fotoso");
 					;
 				}
-			}
+			
 		}
 	}
 
@@ -59,7 +63,7 @@ public class BMPImage {
 					data.add(Character.getNumericValue(bmpImage.header
 							.getRandomAccessFile().readChar()));
 				} catch (IOException e) {
-					System.out.println("Error al leer de archivo");
+					System.out.println("Error al leer de archivo foto");
 				}
 			}
 		}

@@ -97,6 +97,7 @@ public class BMPHeader {
 					.readInt());
 			
 			randomAccessFile.seek(offSet); //Por las dudas
+			System.out.println(offSet);
 			
 			
 //			randomAccessFile quedo apuntando a los pixeles de la imagen
@@ -120,5 +121,13 @@ public class BMPHeader {
 
 	public short getShadeNumber() {
 		return shadeNumber;
+	}
+
+	public int getBiSizeImage() {
+		return biSizeImage;
+	}
+
+	public void setBiSizeImage(int biSizeImage) {
+		this.biSizeImage = biSizeImage;
 	}
 }

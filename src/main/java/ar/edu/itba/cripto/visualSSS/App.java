@@ -87,6 +87,7 @@ public class App {
 	private static List<BMPImage> loadSombras() {
 		List<BMPImage> imgSombras = new ArrayList<BMPImage>();
 		for (int i = 0; i < listOfFiles.length; i++) {
+
 			String extension = getExtension(listOfFiles[i].getName()
 					.toLowerCase());
 			if (!extension.equals("bmp")) {
@@ -106,8 +107,10 @@ public class App {
 		List<BMPImage> imgSombras = new ArrayList<BMPImage>();
 		File file = null;
 		for (int i = 0; i < listOfFiles.length; i++) {
+			System.out.println(listOfFiles[i].getName());
 			String extension = getExtension(listOfFiles[i].getName()
 					.toLowerCase());
+			System.out.println(extension);
 			if (!extension.equals("bmp")) {
 				continue;
 			}
@@ -128,21 +131,35 @@ public class App {
 		int minData=getMinData(listSombras);
 		for(int i=0; i <minData; ){
 			List<Point> pSombraList = cargarPuntosSombras(minData);
-			int color=lagrange(pSombraList);
+			int color=gauss(pSombraList);
 			secretRecover.getData().set(i, color);
 			minData+=8;
 		}
 	}
-
-	private static int lagrange(List<Point> pSombraList) {
-		double[] x=new double[pSombraList.size()];
-		double[] y=new double[pSombraList.size()];
+	
+//	https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
+	private static int gauss(List<Point> pSombraList) {
+		int primo=256;
+		int[][] input=new int[pSombraList.size()][pSombraList.size()+1];
 		for(int i=0; i <pSombraList.size(); i++){
-			x[i]=pSombraList.get(i).getX();
-			y[i]=pSombraList.get(i).getY();
+			for(int j=0; j<pSombraList.size()+1; j++){
+				if(j!=pSombraList.size()){
+					input[i][j]=(int) Math.pow(pSombraList.get(i).getX(), j)%primo;
+				}else{
+					input[i][j]=(int) pSombraList.get(i).getY();
+				} 
+			}
 		}
-		double[] result = LagrangeInterpolation.findPolynomialFactors(x, y);
-		return (int) result[pSombraList.size()-1];
+    	// The actual matrix object
+        Matrix<Integer> mat = new Matrix<Integer>(
+                input.length, input[0].length, new PrimeField(primo));
+        for (int i = 0; i < mat.rowCount(); i++) {
+            for (int j = 0; j < mat.columnCount(); j++)
+                mat.set(i, j, input[i][j]);
+        }
+        // Gauss-Jordan elimination
+        mat.reducedRowEchelonForm();
+		return (int) mat.get(mat.rowCount()-1, mat.columnCount()-1);
 	}
 
 	private static List<Point> cargarPuntosSombras(int minData) {
@@ -169,7 +186,7 @@ public class App {
 
 	private static void encode() {
 		int index = 0;
-		while (index <= secret.getData().size()) {
+		while (index < secret.getData().size()) {
 			Integer wdSecret = secret.getData().get(index);
 			List<Point> psombrasList = new ArrayList<Point>();
 			while (secretLoop(psombrasList)) {
@@ -188,6 +205,7 @@ public class App {
 			for (int i = 0; i < totalParticiones; i++) {
 				addSombraEnArchivo(i, index, psombrasList.get(i));
 			}
+			index++;
 		}
 	}
 
@@ -239,8 +257,10 @@ public class App {
 	}
 
 	private static BMPImage readImage(String filename) {
+		//System.out.println(filename);
 		File file = null;
 		for (int i = 0; i < listOfFiles.length; i++) {
+			//System.out.println(listOfFiles[i].getName());
 			if (listOfFiles[i].getName().equals(filename)) { // poner la opcion
 				// que corresponda
 				file = listOfFiles[i];
@@ -251,7 +271,7 @@ public class App {
 	}
 
 	public static String getExtension(String s) {
-		String ext = null;
+		String ext = "";
 		int i = s.lastIndexOf('.');
 
 		if (i > 0 && i < s.length() - 1) {
