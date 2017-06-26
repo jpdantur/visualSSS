@@ -57,15 +57,8 @@ public class BMPImage {
 
 	private void loadData(BMPImage bmpImage) {
 		data = new ArrayList<Integer>();
-		for (int i = 0; i < bmpImage.header.getBiWidth(); i++) {
-			for (int j = 0; j < header.getBiHeight(); j++) {
-				try {
-					data.add(Character.getNumericValue(bmpImage.header
-							.getRandomAccessFile().readChar()));
-				} catch (IOException e) {
-					System.out.println("Error al leer de archivo foto");
-				}
-			}
+		for(Integer value: bmpImage.getData()){
+			data.add(value);
 		}
 	}
 
