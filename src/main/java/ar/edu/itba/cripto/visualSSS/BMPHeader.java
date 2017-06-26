@@ -140,27 +140,48 @@ public class BMPHeader {
 		try {
 			randomAccessFile = new RandomAccessFile(filename, "rw");
 			
-			RandomAccessFile imagen = new RandomAccessFile("resources/Albertssd.bmp", "rw");
+//			int i = 0;
+//			while (i < offSet) {
+//				randomAccessFile.writeByte(0);
+//				i++;
+//			}
+//			randomAccessFile.seek(0);
 			
-			int i = 0;
-			while (i < offSet) {
-				randomAccessFile.writeByte(imagen.readByte());
-				i++;
-			}
-			
+			int colorPaletteLen = 256 * 4;
+			int headerLen = 54;
 			
 
-//			randomAccessFile.writeChar(id);
-//			randomAccessFile.writeInt(ByteSwapper.swap(size));
-//			randomAccessFile.writeShort(ByteSwapper.swap(seed));
-//
-//			randomAccessFile.writeShort(ByteSwapper.swap(shadeNumber));
-//			randomAccessFile.writeInt(ByteSwapper.swap(offSet));
-//			randomAccessFile.writeInt(ByteSwapper.swap(biSize));
-//			randomAccessFile.writeInt(ByteSwapper.swap(biWidth));
-//			randomAccessFile.writeInt(ByteSwapper.swap(biHeight));
-//
-//			randomAccessFile.writeByte(ByteSwapper.swap(biPlanes[0]));
+			randomAccessFile.writeChar(id);
+			randomAccessFile.writeInt(ByteSwapper.swap(headerLen + colorPaletteLen + width * height));
+			randomAccessFile.writeShort(ByteSwapper.swap(seed));
+
+			randomAccessFile.writeShort(ByteSwapper.swap(shadeNumber));
+			randomAccessFile.writeInt(ByteSwapper.swap(headerLen + colorPaletteLen));
+			
+			randomAccessFile.writeInt(ByteSwapper.swap(40));
+			randomAccessFile.writeInt(ByteSwapper.swap(width));
+			randomAccessFile.writeInt(ByteSwapper.swap(height));
+
+			randomAccessFile.writeShort(ByteSwapper.swap((short)1)); //Color planes
+			randomAccessFile.writeShort(ByteSwapper.swap((short)8)); //Bits per pixel
+			
+			randomAccessFile.writeInt(0); //No compression
+			
+			randomAccessFile.writeInt(ByteSwapper.swap(width * height)); //Image Size
+			
+			randomAccessFile.writeInt(ByteSwapper.swap(2835)); //Pixels Per mt
+			randomAccessFile.writeInt(ByteSwapper.swap(2835)); //Pixels Per mt
+			randomAccessFile.writeInt(ByteSwapper.swap(256)); //Color palette
+			randomAccessFile.writeInt(0); //Important Colors
+			
+			//Write Palette
+			for (int i = 0; i < 256; i++) {
+				randomAccessFile.writeByte(i);
+				randomAccessFile.writeByte(i);
+				randomAccessFile.writeByte(i);
+				randomAccessFile.writeByte(0);
+			}
+			
 //			randomAccessFile.writeByte(ByteSwapper.swap(biPlanes[1]));
 //
 //			randomAccessFile.writeByte(ByteSwapper.swap(biBitCount[0]));
@@ -174,8 +195,8 @@ public class BMPHeader {
 //			randomAccessFile.writeInt(ByteSwapper.swap(biClrUsed));
 //
 //			randomAccessFile.writeInt(ByteSwapper.swap(biClrImportant));
-//
-//			randomAccessFile.seek(offSet); //Por las dudas
+
+			randomAccessFile.seek(headerLen + colorPaletteLen); //Por las dudas
 			
 			
 			return randomAccessFile;
