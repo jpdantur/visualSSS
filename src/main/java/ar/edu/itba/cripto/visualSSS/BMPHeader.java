@@ -47,6 +47,7 @@ public class BMPHeader {
 	public BMPHeader(File file, int i) {
 		try {
 			randomAccessFile = new RandomAccessFile(file, "rw");
+			
 			id = randomAccessFile.readChar();
 			size = ByteSwapper.swap(randomAccessFile.readInt());
 			seed = ByteSwapper.swap(randomAccessFile.readShort()); // TODO:
@@ -129,5 +130,59 @@ public class BMPHeader {
 
 	public void setBiSizeImage(int biSizeImage) {
 		this.biSizeImage = biSizeImage;
+	}
+	
+	public short getSeed() {
+		return seed;
+	}
+	
+	public RandomAccessFile save(String filename, int width, int height){
+		try {
+			randomAccessFile = new RandomAccessFile(filename, "rw");
+			
+			RandomAccessFile imagen = new RandomAccessFile("resources/Albertssd.bmp", "rw");
+			
+			int i = 0;
+			while (i < offSet) {
+				randomAccessFile.writeByte(imagen.readByte());
+				i++;
+			}
+			
+			
+
+//			randomAccessFile.writeChar(id);
+//			randomAccessFile.writeInt(ByteSwapper.swap(size));
+//			randomAccessFile.writeShort(ByteSwapper.swap(seed));
+//
+//			randomAccessFile.writeShort(ByteSwapper.swap(shadeNumber));
+//			randomAccessFile.writeInt(ByteSwapper.swap(offSet));
+//			randomAccessFile.writeInt(ByteSwapper.swap(biSize));
+//			randomAccessFile.writeInt(ByteSwapper.swap(biWidth));
+//			randomAccessFile.writeInt(ByteSwapper.swap(biHeight));
+//
+//			randomAccessFile.writeByte(ByteSwapper.swap(biPlanes[0]));
+//			randomAccessFile.writeByte(ByteSwapper.swap(biPlanes[1]));
+//
+//			randomAccessFile.writeByte(ByteSwapper.swap(biBitCount[0]));
+//			randomAccessFile.writeByte(ByteSwapper.swap(biBitCount[1]));
+//
+//			randomAccessFile.writeInt(ByteSwapper.swap(biCompression));
+//			randomAccessFile.writeInt(ByteSwapper.swap(biSizeImage));
+//
+//			randomAccessFile.writeInt(ByteSwapper.swap(biXPelsPerMeter));
+//			randomAccessFile.writeInt(ByteSwapper.swap(biYPelsPerMeter));
+//			randomAccessFile.writeInt(ByteSwapper.swap(biClrUsed));
+//
+//			randomAccessFile.writeInt(ByteSwapper.swap(biClrImportant));
+//
+//			randomAccessFile.seek(offSet); //Por las dudas
+			
+			
+			return randomAccessFile;
+		} catch (IOException e) {
+			System.out.println("Not Found");
+
+		}
+		return null;
 	}
 }

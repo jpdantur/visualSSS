@@ -2,6 +2,7 @@ package ar.edu.itba.cripto.visualSSS;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,15 +27,13 @@ public class BMPImage {
 
 	private void loadData() {
 		data = new ArrayList<Integer>();
-		//System.out.println(header.getBiHeight()*header.getBiWidth());
 		System.out.println("hhh: "+header.getBiHeight()*header.getBiWidth());
 		for (int i = 0; i < header.getBiHeight()*header.getBiWidth(); i++) {
 
 				try {
-					data.add(Character.getNumericValue(header
-							.getRandomAccessFile().readByte()));
+					data.add((int) header
+							.getRandomAccessFile().readUnsignedByte());
 				} catch (IOException e) {
-					//e.printStackTrace();
 					System.out.println(header.getBiHeight()*header.getBiWidth());
 					System.out.println("fdsa "+data.size());
 					System.out.println("Error al leer de archivo fotoso");
@@ -70,9 +69,32 @@ public class BMPImage {
 		return header;
 	}
 
-	public void save(File folder) {
-		// TODO guardar imagen en el directorio que se indica
-
+	public void save(File folder, int width, int height) {
+		RandomAccessFile raf = null;
+		try {
+			raf = header.save(filename, width, height);
+			if(raf!=null){
+				for(Integer value: data){
+					raf.writeByte(value);
+				}
+				int acum=header.getBiHeight()*header.getBiWidth()-data.size();
+				while (acum>0){
+					raf.writeByte(0);
+					acum--;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (raf != null) {
+				try {
+					raf.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
 	}
 	
 

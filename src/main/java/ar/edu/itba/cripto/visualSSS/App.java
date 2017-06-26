@@ -66,7 +66,7 @@ public class App {
 			if (tipoOperacion) {
 				encode();
 				for (BMPImage img : listSombras) {
-					img.save(folder);
+					img.save(folder, img.getHeader().getBiWidth(), img.getHeader().getBiHeight());
 				}
 			} else {
 				if (listSombras.size() < minimoParticiones) {
@@ -74,7 +74,7 @@ public class App {
 							.println("el secreto no puede recuperarse, se requiere de mas sombras.");
 				} else {
 					decode();
-					secretRecover.save(folder);
+					secretRecover.save(folder, secretRecover.getHeader().getBiWidth(), secretRecover.getHeader().getBiHeight());
 				}
 			}
 		} catch (ParseException e) {
@@ -129,17 +129,21 @@ public class App {
 
 	private static void decode() {
 		int minData=getMinData(listSombras);
-		for(int i=0; i <minData; ){
-			List<Point> pSombraList = cargarPuntosSombras(minData);
-			int color=gauss(pSombraList);
-			secretRecover.getData().set(i, color);
-			minData+=8;
+		rnd.setSeed(listSombras.get(0).getHeader().getSeed());
+		for(int i=0; i <minData/8; i++ ){
+			List<Point> pSombraList = cargarPuntosSombras(i*8);
+			List<Integer> colors=gauss(pSombraList);//.byteValue();
+			for (int j = 0; j < colors.size(); j++){
+				byte rndValue= new Integer(rnd.nextInt(256)).byteValue();
+				secretRecover.getData().set(i * 8 + j,  colors.get(j) ^ rndValue);
+			}
 		}
 	}
 	
 //	https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
-	private static int gauss(List<Point> pSombraList) {
-		int primo=256;
+	private static List<Integer> gauss(List<Point> pSombraList) {
+		int primo=257;
+		List<Integer> ret = new ArrayList<Integer>();
 		int[][] input=new int[pSombraList.size()][pSombraList.size()+1];
 		for(int i=0; i <pSombraList.size(); i++){
 			for(int j=0; j<pSombraList.size()+1; j++){
@@ -159,7 +163,15 @@ public class App {
         }
         // Gauss-Jordan elimination
         mat.reducedRowEchelonForm();
-		return (int) mat.get(mat.rowCount()-1, mat.columnCount()-1);
+        
+        for (int i = 0; i < mat.rowCount(); i++) {
+        	ret.add(mat.get(i, mat.columnCount()-1));
+//            for (int j = 0; j < mat.columnCount(); j++)
+//            	System.out.print(mat.get(i, j) + " ");
+//            System.out.println("");
+        }
+        
+		return ret; //(int) mat.get(mat.rowCount()-1, mat.columnCount()-1);
 	}
 
 	private static List<Point> cargarPuntosSombras(int minData) {
@@ -168,7 +180,8 @@ public class App {
 			int value=0;
 			for(int k=0; k<8; k++){
 				int color=listSombras.get(i).getData().get(minData+k);
-				value = value<<1+ (color%2);
+				value = value*2 + (color%2);
+//				value = (value<<1) + (color%2);
 			}
 			list.add(new Point(listSombras.get(i).getHeader().getShadeNumber(), value));
 		}
