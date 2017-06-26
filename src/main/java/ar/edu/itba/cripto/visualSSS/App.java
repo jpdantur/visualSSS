@@ -53,7 +53,7 @@ public class App {
 					if (o.getOpt().compareTo("secret") == 0) {
 						if (tipoOperacion) {
 							secret = readImage(o.getValues()[0]);
-							listSombras = generateSombras(o.getValues()[0]);
+							listSombras = generateSombras("Sombra");
 						} else {
 							listSombras = loadSombras();
 							secretRecover = createImage(o.getValues()[0]);
@@ -67,7 +67,7 @@ public class App {
 			if (tipoOperacion) {
 				encode();
 				for (BMPImage img : listSombras) {
-					img.save(folder, img.getHeader().getBiWidth(), img.getHeader().getBiHeight());
+					img.save(folder, img.getHeader().getBiWidth(), img.getHeader().getBiHeight(), (short)seed);
 				}
 			} else {
 				if (listSombras.size() < minimoParticiones) {
@@ -75,7 +75,7 @@ public class App {
 							.println("el secreto no puede recuperarse, se requiere de mas sombras.");
 				} else {
 					decode();
-					secretRecover.save(folder, secretRecover.getHeader().getBiWidth(), secretRecover.getHeader().getBiHeight());
+					secretRecover.save(folder, secretRecover.getHeader().getBiWidth(), secretRecover.getHeader().getBiHeight(),(short)0);
 				}
 			}
 		} catch (ParseException e) {
@@ -115,14 +115,14 @@ public class App {
 			if (!extension.equals("bmp")) {
 				continue;
 			}
-			if (listOfFiles[i].getName().equals(filename))
+			if (listOfFiles[i].getName().equals(filename+".bmp"))
 				file = listOfFiles[i];
 		}
 		if (file == null) {
 			System.out.println("Error al generar las sombras");
 		}
 		for (int i = 0; i < totalParticiones; i++) {
-			BMPImage img = new BMPImage(filename + "_s" + i, file, i);
+			BMPImage img = new BMPImage(filename + "_s" + i+".bmp", file, i);
 			imgSombras.add(img);
 		}
 		return imgSombras;
@@ -236,7 +236,7 @@ public class App {
 			}
 			
 			index = index + minimoParticiones;
-			System.out.println("Indice: "+index);
+			//System.out.println("Indice: "+index);
 			
 			
 			

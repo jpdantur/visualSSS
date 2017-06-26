@@ -136,7 +136,7 @@ public class BMPHeader {
 		return seed;
 	}
 	
-	public RandomAccessFile save(String filename, int width, int height){
+	public RandomAccessFile save(String filename, int width, int height, short seed, short shadeNumber){
 		try {
 			randomAccessFile = new RandomAccessFile(filename, "rw");
 			

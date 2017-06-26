@@ -22,7 +22,7 @@ public class BMPImage {
 		this.filename = filename;
 		header = new BMPHeader(file, i);
 		loadData();
-		this.sombraNro = header.getShadeNumber();
+		this.sombraNro = i+1;
 	}
 
 	private void loadData() {
@@ -69,10 +69,10 @@ public class BMPImage {
 		return header;
 	}
 
-	public void save(File folder, int width, int height) {
+	public void save(File folder, int width, int height, short seed) {
 		RandomAccessFile raf = null;
 		try {
-			raf = header.save(filename, width, height);
+			raf = header.save(filename, width, height, seed, (short)sombraNro);
 			if(raf!=null){
 				for(Integer value: data){
 					raf.writeByte(value);
