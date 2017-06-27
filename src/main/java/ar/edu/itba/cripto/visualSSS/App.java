@@ -94,6 +94,7 @@ public class App {
 			if (!extension.equals("bmp")) {
 				continue;
 			}
+			System.out.println(listOfFiles[i].getName());
 			BMPImage img = new BMPImage(listOfFiles[i].getName(),
 					listOfFiles[i]);
 			imgSombras.add(img);
@@ -131,6 +132,7 @@ public class App {
 	private static void decode() {
 		int minData=getMinData(listSombras);
 		rnd.setSeed(listSombras.get(0).getHeader().getSeed());
+		System.out.println("Seed: "+listSombras.get(0).getHeader().getSeed());
 		for(int i=0; i <minData/8; i++ ){
 			List<Point> pSombraList = cargarPuntosSombras(i*8);
 			List<Integer> colors=gauss(pSombraList);//.byteValue();
@@ -207,14 +209,16 @@ public class App {
 					minimoParticiones);
 			for (int i = 0; i < minimoParticiones; i++) {
 				byte rndValue= new Integer(rnd.nextInt(256)).byteValue();
+				//System.out.println("Dato de foto "+(index+i)+": "+Integer.toHexString(secret.getData().get(index + i)));
+				//System.out.println("Rnd "+(index+i)+": "+Integer.toHexString(rndValue));
+				//System.out.println("Result "+(index+i)+": "+Integer.toHexString((secret.getData().get(index + i) ^ rndValue) & 0xff));
 				polinomioCoef.add((secret.getData().get(index + i) ^ rndValue) & 0xff);
-				i++;
 			}
 			
 			List<Point> psombrasList = new ArrayList<Point>();
 			while (psombrasList.isEmpty()) {
 				for (int i = 0; i < totalParticiones; i++) {
-					psombrasList.add(generarSombra(i, polinomioCoef));
+					psombrasList.add(generarSombra(i+1, polinomioCoef));
 				}
 				
 				for (int i = 0; i < psombrasList.size(); i++) {
@@ -223,6 +227,7 @@ public class App {
 							int coef = polinomioCoef.get(j);
 							if ( coef > 0) {
 								polinomioCoef.set(j, coef - 1);
+								System.out.println("Reset");
 								psombrasList.clear();
 								break;
 							}
@@ -299,6 +304,7 @@ public class App {
 	private static Point generarSombra(Integer x, List<Integer> polinomioCoef) {
 		int y = 0;
 		for (int i = 0; i < polinomioCoef.size(); i++) {
+			//System.out.println("Coef "+i+ ": "+ Integer.toHexString(polinomioCoef.get(i)));
 			y += polinomioCoef.get(i) * Math.pow(x, i);
 		}
 		return new Point(x, y);
