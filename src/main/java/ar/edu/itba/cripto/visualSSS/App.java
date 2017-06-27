@@ -20,7 +20,7 @@ public class App {
 	private static File[] listOfFiles;
 	private static List<BMPImage> listSombras;
 	private static File folder;
-	private static int seed = 10;
+	private static int seed = 0x166F;
 
 	public static void main(String[] args) {
 		try {
@@ -222,6 +222,7 @@ public class App {
 				}
 				
 				for (int i = 0; i < psombrasList.size(); i++) {
+					System.out.println("Punto vale: "+psombrasList.get(i).y);
 					if (psombrasList.get(i).y == 256) {
 						for (int j = 0; j < polinomioCoef.size(); j++) {
 							int coef = polinomioCoef.get(j);
@@ -284,18 +285,18 @@ public class App {
 		BMPImage img = listSombras.get(i);
 		for (int j = 0; j < 8; j++) {
 			byte color = new Integer(sombra.y).byteValue();
-			byte somb = ((Integer) ((Double) Math.pow(2, j)).intValue())
-					.byteValue();
-			int res = color & somb;
+			int somb = (1<<(7-j)) & 0xff;
+			int res = ((color & somb) & 0xff) ==0?0:1;
+			
 
 			int resultado = img.getData().get(index+j);
 			if (resultado % 2 != 0) {
 				resultado--;
 			}
-			if (res != 0) {
-				resultado++;
-			}
-			//System.out.println("i: "+i+"Index: "+(index*8+j));
+			resultado = resultado|res;
+			//System.out.println("Color: "+Integer.toHexString(color)+" Somb: "+somb+" Res: "+res +
+				//	" Foto: "+Integer.toHexString(img.getData().get(index+j))+
+					//" Resultado: "+Integer.toHexString(resultado));
 			img.getData().set(index + j, resultado);
 		}
 
@@ -304,10 +305,10 @@ public class App {
 	private static Point generarSombra(Integer x, List<Integer> polinomioCoef) {
 		int y = 0;
 		for (int i = 0; i < polinomioCoef.size(); i++) {
-			//System.out.println("Coef "+i+ ": "+ Integer.toHexString(polinomioCoef.get(i)));
+			System.out.println("Coef "+i+ ": "+ Integer.toHexString(polinomioCoef.get(i)));
 			y += polinomioCoef.get(i) * Math.pow(x, i);
 		}
-		return new Point(x, y);
+		return new Point(x, y%257);
 
 	}
 
