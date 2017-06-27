@@ -145,7 +145,7 @@ public class BMPHeader {
 //				randomAccessFile.writeByte(0);
 //				i++;
 //			}
-//			randomAccessFile.seek(0);
+			randomAccessFile.seek(0);
 			
 			int colorPaletteLen = 256 * 4;
 			int headerLen = 54;
