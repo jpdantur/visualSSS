@@ -65,9 +65,11 @@ public class App {
 			rnd = new Random();
 			rnd.setSeed(seed);
 			if (tipoOperacion) {
-				encode();
-				for (BMPImage img : listSombras) {
-					img.save(folder, img.getHeader().getBiWidth(), img.getHeader().getBiHeight(), (short)seed);
+				if (listSombras.size()== totalParticiones){
+					encode();
+					for (BMPImage img : listSombras) {
+						img.save(folder, img.getHeader().getBiWidth(), img.getHeader().getBiHeight(), (short)seed);
+					}
 				}
 			} else {
 				if (listSombras.size() < minimoParticiones) {
@@ -97,9 +99,11 @@ public class App {
 			System.out.println(listOfFiles[i].getName());
 			BMPImage img = new BMPImage(listOfFiles[i].getName(),
 					listOfFiles[i]);
-			imgSombras.add(img);
-			if (imgSombras.size() == minimoParticiones) {
-				break;
+			if(img.getHeader().getBiHeight()*img.getHeader().getBiWidth()%8==0){
+				imgSombras.add(img);
+				if (imgSombras.size() == minimoParticiones) {
+					break;
+				}
 			}
 		}
 		return imgSombras;
@@ -120,11 +124,15 @@ public class App {
 				file = listOfFiles[i];
 		}
 		if (file == null) {
-			System.out.println("Error al generar las sombras");
-		}
-		for (int i = 0; i < totalParticiones; i++) {
-			BMPImage img = new BMPImage(filename + "_s" + i+".bmp", file, i);
-			imgSombras.add(img);
+			throw new IllegalArgumentException("Error al generar las sombras");
+		}else{
+			for (int i = 0; i < totalParticiones; i++) {
+				BMPImage img = new BMPImage(filename + "_s" + i+".bmp", file, i);
+				if(img.getHeader().getBiHeight()*img.getHeader().getBiWidth()%8!=0){
+					throw new IllegalArgumentException("Los archivos para las sombras deben tener una cantidad de pixeles multiplo de 8");
+				}
+				imgSombras.add(img);
+			}
 		}
 		return imgSombras;
 	}
@@ -138,7 +146,7 @@ public class App {
 			List<Integer> colors=gauss(pSombraList);//.byteValue();
 			for (int j = 0; j < colors.size(); j++){
 				byte rndValue= new Integer(rnd.nextInt(256)).byteValue();
-				secretRecover.getData().set(i * 8 + j,  colors.get(j) ^ rndValue);
+				secretRecover.getData().set(i * 8 + j,  (colors.get(j) ^ rndValue) & 0x0ff);
 			}
 		}
 	}
@@ -169,12 +177,9 @@ public class App {
         
         for (int i = 0; i < mat.rowCount(); i++) {
         	ret.add(mat.get(i, mat.columnCount()-1));
-//            for (int j = 0; j < mat.columnCount(); j++)
-//            	System.out.print(mat.get(i, j) + " ");
-//            System.out.println("");
         }
         
-		return ret; //(int) mat.get(mat.rowCount()-1, mat.columnCount()-1);
+		return ret;
 	}
 
 	private static List<Point> cargarPuntosSombras(int minData) {
@@ -212,7 +217,7 @@ public class App {
 				//System.out.println("Dato de foto "+(index+i)+": "+Integer.toHexString(secret.getData().get(index + i)));
 				//System.out.println("Rnd "+(index+i)+": "+Integer.toHexString(rndValue));
 				//System.out.println("Result "+(index+i)+": "+Integer.toHexString((secret.getData().get(index + i) ^ rndValue) & 0xff));
-				polinomioCoef.add((secret.getData().get(index + i) ^ rndValue) & 0xff);
+				polinomioCoef.add((secret.getData().get(index + i) ^ rndValue) & 0x0ff);
 			}
 			
 			List<Point> psombrasList = new ArrayList<Point>();
@@ -327,6 +332,9 @@ public class App {
 			}
 		}
 		BMPImage img = new BMPImage(filename, file);
+		if(img.getHeader().getBiHeight()*img.getHeader().getBiWidth()%totalParticiones!=0){
+			throw new IllegalArgumentException("El tamaño de la imagen secreta debe ser multiplo de "+totalParticiones);
+		}
 		return img;
 	}
 

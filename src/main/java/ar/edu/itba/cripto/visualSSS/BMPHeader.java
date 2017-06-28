@@ -50,14 +50,8 @@ public class BMPHeader {
 			
 			id = randomAccessFile.readChar();
 			size = ByteSwapper.swap(randomAccessFile.readInt());
-			seed = ByteSwapper.swap(randomAccessFile.readShort()); // TODO:
-																		// Escribirselo
-																		// al
-																		// archivo
-			shadeNumber = ByteSwapper.swap(randomAccessFile.readShort()); // TODO:
-																			// Escribirselo
-																			// al
-																			// archivo
+			seed = ByteSwapper.swap(randomAccessFile.readShort());
+			shadeNumber = ByteSwapper.swap(randomAccessFile.readShort()); 
 			offSet = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biSize 4 Header Size - Must be at least 40
