@@ -4,7 +4,9 @@ import java.awt.Point;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.cli.Option;
@@ -38,6 +40,9 @@ public class App {
 					totalParticiones = Integer.parseInt(o.getValues()[0]);
 				}
 			}
+			if(minimoParticiones<=0  || totalParticiones<=0 || totalParticiones<minimoParticiones){
+				throw new IllegalArgumentException("Valores invalidos para k o n.");
+			}
 			for (Option o : recognized) {
 				if (o.getOpt().compareTo("dir") == 0) {
 					folder = new File(o.getValues()[0]);
@@ -61,7 +66,7 @@ public class App {
 					}
 				}
 			}
-
+			
 			rnd = new Random();
 			rnd.setSeed(seed);
 			if (tipoOperacion) {
@@ -74,12 +79,14 @@ public class App {
 			} else {
 				if (listSombras.size() < minimoParticiones) {
 					System.out
-							.println("el secreto no puede recuperarse, se requiere de mas sombras.");
+							.println("El secreto no puede recuperarse, se requiere de mas sombras.");
 				} else {
 					decode();
 					secretRecover.save(folder, secretRecover.getHeader().getBiWidth(), secretRecover.getHeader().getBiHeight(),(short)0);
 				}
 			}
+		}catch (IllegalArgumentException ex){
+			System.out.println(ex);
 		} catch (ParseException e) {
 			e.printStackTrace();
 			System.out.println("Invalid Arguments");
@@ -106,7 +113,32 @@ public class App {
 				}
 			}
 		}
+		validateSombras(imgSombras);
 		return imgSombras;
+	}
+
+	private static void validateSombras(List<BMPImage> imgSombras) {
+		if(imgSombras.isEmpty()){
+			throw new IllegalArgumentException("La cantidad de sombras leidas no puede ser cero.");
+		}
+		int size=imgSombras.get(0).getData().size();
+		int ancho=imgSombras.get(0).getHeader().getBiWidth();
+		int alto=imgSombras.get(0).getHeader().getBiHeight();
+		int seed=imgSombras.get(0).getHeader().getSeed();
+		Map<Short, Integer> idmap=new HashMap<Short, Integer>();
+		for(BMPImage img:imgSombras){
+			if(img.getData().size()!=size || img.getHeader().getBiHeight()!=alto || img.getHeader().getBiWidth()!=ancho){
+				throw new IllegalArgumentException("Los archivos con sombras deben tener las mismas dimensiones");
+			}else if(img.getHeader().getSeed()!=seed){
+				throw new IllegalArgumentException("Los archivos con sombras deben tener todos la misma semilla");
+			}else if(img.getHeader().getShadeNumber()==0){
+				throw new IllegalArgumentException("Ningun archivo sombra puede tener id = 0");
+			}
+			idmap.put(img.getHeader().getShadeNumber(), null);
+		}
+		if(idmap.keySet().size()!=imgSombras.size()){
+			throw new IllegalArgumentException("Existe al menos un nro de sombra repetido entre los archivos de sombras");
+		}
 	}
 
 	private static List<BMPImage> generateSombras(String filename) {
@@ -143,7 +175,7 @@ public class App {
 		System.out.println("Seed: "+listSombras.get(0).getHeader().getSeed());
 		for(int i=0; i <minData/8; i++ ){
 			List<Point> pSombraList = cargarPuntosSombras(i*8);
-			List<Integer> colors=gauss(pSombraList);//.byteValue();
+			List<Integer> colors=gauss(pSombraList);
 			for (int j = 0; j < colors.size(); j++){
 				byte rndValue= new Integer(rnd.nextInt(256)).byteValue();
 				secretRecover.getData().set(i * 8 + j,  (colors.get(j) ^ rndValue) & 0x0ff);
@@ -272,19 +304,19 @@ public class App {
 		}
 	}
 
-	private static boolean secretLoop(List<Point> psombrasList) {
-		if (psombrasList.isEmpty()) {
-			return true;
-		}
-		for (Point p : psombrasList) {
-			if (p.y == 256){
-				psombrasList.clear();
-				return true;
-			}
-		}
-		return false;
-
-	}
+//	private static boolean secretLoop(List<Point> psombrasList) {
+//		if (psombrasList.isEmpty()) {
+//			return true;
+//		}
+//		for (Point p : psombrasList) {
+//			if (p.y == 256){
+//				psombrasList.clear();
+//				return true;
+//			}
+//		}
+//		return false;
+//
+//	}
 
 	private static void addSombraEnArchivo(int i, int index, Point sombra) {
 		BMPImage img = listSombras.get(i);
