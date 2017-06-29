@@ -42,6 +42,7 @@ public class BMPHeader {
 		biClrUsed = header.biClrUsed;
 		biClrImportant = header.biClrImportant;
 		biSize = header.biSize;
+		
 		//se fija altura del archivo del secreto
 		if(header.biHeight*minimoParticiones%8!=0){
 			throw new IllegalArgumentException("Para generarse el archivo del secreto la altura de las sombras multiplicadas por r debe ser multiplo de 8");
@@ -63,10 +64,10 @@ public class BMPHeader {
 			// biSize 4 Header Size - Must be at least 40
 			biSize = ByteSwapper.swap(randomAccessFile.readInt());
 
-			// biWidth 4 Image width in pixelsç
+			// biWidth 4 Image width in pixels
 			biWidth = ByteSwapper.swap(randomAccessFile.readInt());
 
-			// biHeight 4 Image height in pixelsç
+			// biHeight 4 Image height in pixels
 			biHeight = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biPlanes 2 Must be 1
@@ -187,5 +188,9 @@ public class BMPHeader {
 
 		}
 		return null;
+	}
+	
+	public void setShadeNumber(short shadeNumber) {
+		this.shadeNumber = shadeNumber;
 	}
 }

@@ -88,9 +88,9 @@ public class App {
 		}catch (IllegalArgumentException ex){
 			System.out.println(ex.getMessage());
 		} catch (ParseException e) {
-//			e.printStackTrace();
 			System.out.println("Invalid Arguments");
 		} catch (Exception exx){
+			exx.printStackTrace();
 			System.out.println(exx.getMessage());
 		}
 
@@ -98,9 +98,9 @@ public class App {
 
 	private static void validarArchivosEncoding() {
 		for(BMPImage img: listSombras){
-			if(secret.getHeader().getBiWidth()!=img.getHeader().getBiWidth()){
+			if(secret.getHeader().getBiWidth() != img.getHeader().getBiWidth()){
 				throw new IllegalArgumentException("Los archivos para la generacion de sombras deben tener el mismo ancho que el archivo del secreto");
-			}else if(img.getHeader().getBiHeight()*minimoParticiones!=secret.getHeader().getBiHeight()*8){
+			}else if(img.getHeader().getBiHeight()*minimoParticiones != secret.getHeader().getBiHeight()*8){
 				throw new IllegalArgumentException("Para todos los archivos sombra debe cumplise que su altura es igual a la del archivo secreto multiplicada por r dividido 8 ");
 			}
 		}
@@ -120,6 +120,8 @@ public class App {
 			BMPImage img = new BMPImage(listOfFiles[i].getName(),
 					listOfFiles[i]);
 			if(img.getHeader().getBiHeight()*img.getHeader().getBiWidth()%8==0){
+
+//				img.getHeader().setShadeNumber(new Short((i+1)+""));
 				imgSombras.add(img);
 				if (imgSombras.size() == minimoParticiones) {
 					break;
@@ -328,6 +330,9 @@ public class App {
 			if (listOfFiles[i].getName().equals(filename)) { // poner la opcion que corresponda
 				file = listOfFiles[i];
 			}
+		}
+		if(file==null){
+			throw new IllegalArgumentException("No se encontro el archivo: " +filename);
 		}
 		BMPImage img = new BMPImage(filename, file);
 		if(img.getHeader().getBiHeight()*img.getHeader().getBiWidth()%totalParticiones!=0){
