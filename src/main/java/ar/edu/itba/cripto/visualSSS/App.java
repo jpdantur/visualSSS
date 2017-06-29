@@ -139,8 +139,11 @@ public class App {
 		int size=imgSombras.get(0).getData().size();
 		int ancho=imgSombras.get(0).getHeader().getBiWidth();
 		int alto=imgSombras.get(0).getHeader().getBiHeight();
-		int seed=imgSombras.get(0).getHeader().getSeed();
+		short seed=imgSombras.get(0).getHeader().getSeed();
 		Map<Short, Integer> idmap=new HashMap<Short, Integer>();
+//		for(BMPImage img:imgSombras){
+//		System.out.println(img.getHeader().getSeed());
+//		}
 		for(BMPImage img:imgSombras){
 			if(img.getData().size()!=size || img.getHeader().getBiHeight()!=alto || img.getHeader().getBiWidth()!=ancho){
 				throw new IllegalArgumentException("Los archivos con sombras deben tener las mismas dimensiones");
@@ -164,6 +167,9 @@ public class App {
 		}
 		if(totalParticiones<minimoParticiones){
 			throw new IllegalArgumentException("Indique un valor para n mayor o igual a k");
+		}
+		if(totalParticiones > listOfFiles.length){
+			throw new IllegalArgumentException("Se requiere de mas archivos para generar n sombras");
 		}
 		for (int i = 0; i < listOfFiles.length; i++) {
 //			System.out.println(listOfFiles[i].getName());
