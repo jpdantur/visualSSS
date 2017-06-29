@@ -185,15 +185,15 @@ public class App {
 	}
 
 	private static void decode() {
-		int minData=getMinData(listSombras);
+		int minData= listSombras.get(0).getHeader().getBiHeight() * listSombras.get(0).getHeader().getBiWidth();
 		rnd.setSeed(listSombras.get(0).getHeader().getSeed());
 //		System.out.println("Seed: "+listSombras.get(0).getHeader().getSeed());
-		for(int i=0; i <minData/minimoParticiones; i++ ){
-			List<Point> pSombraList = cargarPuntosSombras(i*minimoParticiones);
+		for(int i=0; i <minData/8; i++ ){
+			List<Point> pSombraList = cargarPuntosSombras(i*8);
 			List<Integer> colors=gauss(pSombraList);
 			for (int j = 0; j < colors.size(); j++){
 				byte rndValue= new Integer(rnd.nextInt(256)).byteValue();
-				secretRecover.getData().set(i * minimoParticiones + j,  (colors.get(j) ^ rndValue) & 0x0ff);
+				secretRecover.getData().set(i * colors.size() + j,  (colors.get(j) ^ rndValue) & 0x0ff);
 			}
 		}
 	}
@@ -242,15 +242,15 @@ public class App {
 		return list;	
 	}
 
-	private static int getMinData(List<BMPImage> listSombras2) {
-		int min=Integer.MAX_VALUE;
-		for(BMPImage img:listSombras2){
-			int data = (int)Math.floor(img.getHeader().getBiHeight() * minimoParticiones / 8.0) * img.getHeader().getBiWidth();
-			if(data<min)
-				min=data;
-		}
-		return min;
-	}
+//	private static int getMinData(List<BMPImage> listSombras2) {
+//		int min=Integer.MAX_VALUE;
+//		for(BMPImage img:listSombras2){
+//			int data = (int)Math.floor(img.getHeader().getBiHeight() * minimoParticiones / 8.0) * img.getHeader().getBiWidth();
+//			if(data<min)
+//				min=data;
+//		}
+//		return min;
+//	}
 
 	private static void encode() {
 		int index = 0;
@@ -285,7 +285,7 @@ public class App {
 			}
 			
 			for (int i = 0; i < totalParticiones; i++) {
-				addSombraEnArchivo(i, index, psombrasList.get(i));
+				addSombraEnArchivo(i, index * 8 / minimoParticiones, psombrasList.get(i));
 			}
 			
 			index = index + minimoParticiones;
@@ -296,8 +296,8 @@ public class App {
 		BMPImage img = listSombras.get(i);
 		for (int j = 0; j < 8; j++) {
 			byte color = new Integer(sombra.y).byteValue();
-			int somb = (1<<(7-j)) & 0xff;
-			int res = ((color & somb) & 0xff) ==0?0:1;
+			int somb = (1<<(7-j)) & 0x0ff;
+			int res = ((color & somb) & 0x0ff) ==0?0:1;
 			
 
 			int resultado = img.getData().get(index+j);
