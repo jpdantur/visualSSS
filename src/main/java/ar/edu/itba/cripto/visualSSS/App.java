@@ -57,7 +57,7 @@ public class App {
 					if (o.getOpt().compareTo("secret") == 0) {
 						if (tipoOperacion) {
 							secret = readImage(o.getValues()[0]);
-							listSombras = generateSombras("Sombra");
+							listSombras = generateSombras(o.getValues()[0]);
 							validarArchivosEncoding();
 						} else {
 							listSombras = loadSombras();
@@ -167,18 +167,21 @@ public class App {
 			if (!extension.equals("bmp")) {
 				continue;
 			}
-			if (listOfFiles[i].getName().equals(filename+".bmp"))
+			if (!listOfFiles[i].getName().equals(filename)){
 				file = listOfFiles[i];
-		}
-		if (file == null) {
-			throw new IllegalArgumentException("Error al generar las sombras");
-		}else{
-			for (int i = 0; i < totalParticiones; i++) {
-				BMPImage img = new BMPImage(filename + "_s" + i+".bmp", file, i);
-				if(img.getHeader().getBiHeight()*img.getHeader().getBiWidth()%8!=0){
-					throw new IllegalArgumentException("Los archivos para las sombras deben tener una cantidad de pixeles multiplo de 8");
+			
+				if (file == null) {
+					throw new IllegalArgumentException("Error al generar las sombras");
+				}else{
+					BMPImage img = new BMPImage(file.getName() + "_s" + i+".bmp", file, i);
+					if(img.getHeader().getBiHeight()*img.getHeader().getBiWidth()%8!=0){
+						throw new IllegalArgumentException("Los archivos para las sombras deben tener una cantidad de pixeles multiplo de 8");
+					}
+					imgSombras.add(img);
 				}
-				imgSombras.add(img);
+			}
+			if(imgSombras.size()==totalParticiones){
+				break;
 			}
 		}
 		return imgSombras;
