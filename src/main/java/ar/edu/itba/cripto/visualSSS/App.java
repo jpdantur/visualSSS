@@ -179,8 +179,8 @@ public class App {
 				if (file == null) {
 					throw new IllegalArgumentException("Error al generar las sombras");
 				}else{
-					BMPImage img = new BMPImage(file.getName() + "_s" + i+".bmp", file, i);
-					if(img.getHeader().getBiHeight()*img.getHeader().getBiWidth()%8!=0){
+					BMPImage img = new BMPImage(file.getName() + "_s" + i+".bmp", file, imgSombras.size());
+					if((img.getHeader().getBiHeight()*img.getHeader().getBiWidth())%8!=0){
 						throw new IllegalArgumentException("Los archivos para las sombras deben tener una cantidad de pixeles multiplo de 8");
 					}
 					imgSombras.add(img);

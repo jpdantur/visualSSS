@@ -160,19 +160,19 @@ public class BMPHeader {
 			randomAccessFile.writeInt(ByteSwapper.swap(width));
 			randomAccessFile.writeInt(ByteSwapper.swap(height));
 
-			randomAccessFile.writeShort(ByteSwapper.swap((short) 1)); // Color planes
-			randomAccessFile.writeShort(ByteSwapper.swap((short) 8)); // Bits per pixel
+			randomAccessFile.writeShort(ByteSwapper.swap((short) 1));
+			randomAccessFile.writeShort(ByteSwapper.swap((short) 8));
 
-			randomAccessFile.writeInt(0); // No compression
+			randomAccessFile.writeInt(0); // compresion
 
-			randomAccessFile.writeInt(ByteSwapper.swap(width * height)); // Image Size
+			randomAccessFile.writeInt(ByteSwapper.swap(width * height)); // tamaño
 
 			randomAccessFile.writeInt(ByteSwapper.swap(2835)); // Pixels Per mt
 			randomAccessFile.writeInt(ByteSwapper.swap(2835)); // Pixels Per mt
-			randomAccessFile.writeInt(ByteSwapper.swap(256)); // Color palette
-			randomAccessFile.writeInt(0); // Important Colors
+			randomAccessFile.writeInt(ByteSwapper.swap(256)); // colores paleta
+			randomAccessFile.writeInt(0); // colores
 
-			// Write Palette
+			// paleta
 			for (int i = 0; i < 256; i++) {
 				randomAccessFile.writeByte(i);
 				randomAccessFile.writeByte(i);
