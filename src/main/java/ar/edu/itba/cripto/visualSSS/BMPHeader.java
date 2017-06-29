@@ -45,7 +45,7 @@ public class BMPHeader {
 		
 		//se fija altura del archivo del secreto
 		if(header.biHeight*minimoParticiones%8!=0){
-			throw new IllegalArgumentException("Para generarse el archivo del secreto la altura de las sombras multiplicadas por r debe ser multiplo de 8");
+			throw new IllegalArgumentException("Para generarse el archivo del secreto la altura de las sombras multiplicadas por k debe ser multiplo de 8");
 		}else{
 			biHeight = header.biHeight*minimoParticiones/8;
 		}

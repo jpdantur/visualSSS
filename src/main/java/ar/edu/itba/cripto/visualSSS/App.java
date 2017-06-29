@@ -39,7 +39,7 @@ public class App {
 					totalParticiones = Integer.parseInt(o.getValues()[0]);
 				}
 			}
-			if(minimoParticiones<=0  || totalParticiones<=0 || totalParticiones<minimoParticiones){
+			if(minimoParticiones<2  || (totalParticiones!=0 && totalParticiones<minimoParticiones)){
 				throw new IllegalArgumentException("Valores invalidos para k o n.");
 			}
 			for (Option o : recognized) {
@@ -56,8 +56,8 @@ public class App {
 				if (secret == null && secretRecover == null) {
 					if (o.getOpt().compareTo("secret") == 0) {
 						if (tipoOperacion) {
-							secret = readImage(o.getValues()[0]);
 							listSombras = generateSombras(o.getValues()[0]);
+							secret = readImage(o.getValues()[0]);
 							validarArchivosEncoding();
 						} else {
 							listSombras = loadSombras();
@@ -101,7 +101,7 @@ public class App {
 			if(secret.getHeader().getBiWidth() != img.getHeader().getBiWidth()){
 				throw new IllegalArgumentException("Los archivos para la generacion de sombras deben tener el mismo ancho que el archivo del secreto");
 			}else if(img.getHeader().getBiHeight()*minimoParticiones != secret.getHeader().getBiHeight()*8){
-				throw new IllegalArgumentException("Para todos los archivos sombra debe cumplise que su altura es igual a la del archivo secreto multiplicada por r dividido 8 ");
+				throw new IllegalArgumentException("Para todos los archivos sombra debe cumplise que su altura es igual a la del archivo secreto multiplicada por k dividido 8 ");
 			}
 		}
 		
@@ -159,6 +159,12 @@ public class App {
 	private static List<BMPImage> generateSombras(String filename) {
 		List<BMPImage> imgSombras = new ArrayList<BMPImage>();
 		File file = null;
+		if(totalParticiones==0){
+			totalParticiones=listOfFiles.length;
+		}
+		if(totalParticiones<minimoParticiones){
+			throw new IllegalArgumentException("Indique un valor para n mayor o igual a k");
+		}
 		for (int i = 0; i < listOfFiles.length; i++) {
 //			System.out.println(listOfFiles[i].getName());
 			String extension = getExtension(listOfFiles[i].getName()
