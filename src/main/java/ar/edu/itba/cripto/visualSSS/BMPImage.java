@@ -27,7 +27,7 @@ public class BMPImage {
 
 	private void loadData() {
 		data = new ArrayList<Integer>();
-		System.out.println("hhh: "+header.getBiHeight()*header.getBiWidth());
+//		System.out.println("hhh: "+header.getBiHeight()*header.getBiWidth());
 		for (int i = 0; i < header.getBiHeight()*header.getBiWidth(); i++) {
 
 				try {
@@ -47,10 +47,10 @@ public class BMPImage {
 		this(filename, file, 0);
 	}
 
-	public BMPImage(String filename, BMPImage bmpImage) {
+	public BMPImage(String filename, BMPImage bmpImage, Integer minimoParticiones) {
 		this.filename = filename;
 		this.sombraNro = 0;
-		header = new BMPHeader(bmpImage.header, sombraNro);
+		header = new BMPHeader(bmpImage.header, sombraNro, minimoParticiones);
 		loadData(bmpImage);
 	}
 

@@ -14,8 +14,8 @@ public class BMPHeader {
 	private RandomAccessFile randomAccessFile;
 	private int biWidth;
 	private int biHeight;
-	private int[] biPlanes=new int[2];
-	private int[] biBitCount=new int[2];
+	private int[] biPlanes = new int[2];
+	private int[] biBitCount = new int[2];
 	private int biCompression;
 	private int biSizeImage;
 	private int biXPelsPerMeter;
@@ -24,34 +24,40 @@ public class BMPHeader {
 	private int biClrImportant;
 	private int biSize;
 
-	public BMPHeader(BMPHeader header, int sombraNro) {
-		id=header.id;
-		size=header.size;
-		seed=header.seed;
-		shadeNumber=(short) sombraNro;
-		offSet=header.offSet;
-		randomAccessFile=header.randomAccessFile;
-		biWidth=header.biWidth;
-		biHeight=header.biHeight;
-		biPlanes=header.biPlanes;
-		biBitCount=header.biBitCount;
-		biCompression=header.biCompression;
-		biSizeImage=header.biSizeImage;
-		biXPelsPerMeter=header.biXPelsPerMeter;
-		biYPelsPerMeter=header.biYPelsPerMeter;
-		biClrUsed=header.biClrUsed;
-		biClrImportant=header.biClrImportant;
-		biSize=header.biSize;
+	public BMPHeader(BMPHeader header, int sombraNro, Integer minimoParticiones) {
+		id = header.id;
+		size = header.size;
+		seed = header.seed;
+		shadeNumber = (short) sombraNro;
+		offSet = header.offSet;
+		randomAccessFile = header.randomAccessFile;
+		biWidth = header.biWidth;
+		biHeight = header.biHeight;
+		biPlanes = header.biPlanes;
+		biBitCount = header.biBitCount;
+		biCompression = header.biCompression;
+		biSizeImage = header.biSizeImage;
+		biXPelsPerMeter = header.biXPelsPerMeter;
+		biYPelsPerMeter = header.biYPelsPerMeter;
+		biClrUsed = header.biClrUsed;
+		biClrImportant = header.biClrImportant;
+		biSize = header.biSize;
+		//se fija altura del archivo del secreto
+		if(header.biHeight*minimoParticiones%8!=0){
+			throw new IllegalArgumentException("Para generarse el archivo del secreto la altura de las sombras multiplicadas por r debe ser multiplo de 8");
+		}else{
+			biHeight = header.biHeight*minimoParticiones/8;
+		}
 	}
 
 	public BMPHeader(File file, int i) {
 		try {
 			randomAccessFile = new RandomAccessFile(file, "rw");
-			
+
 			id = randomAccessFile.readChar();
 			size = ByteSwapper.swap(randomAccessFile.readInt());
 			seed = ByteSwapper.swap(randomAccessFile.readShort());
-			shadeNumber = ByteSwapper.swap(randomAccessFile.readShort()); 
+			shadeNumber = ByteSwapper.swap(randomAccessFile.readShort());
 			offSet = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biSize 4 Header Size - Must be at least 40
@@ -77,28 +83,23 @@ public class BMPHeader {
 			biSizeImage = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biXPelsPerMeter 4 Preferred resolution in pixels per meter
-			biXPelsPerMeter = ByteSwapper.swap(randomAccessFile
-					.readInt());
+			biXPelsPerMeter = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biYPelsPerMeter 4 Preferred resolution in pixels per meter
-			biYPelsPerMeter = ByteSwapper.swap(randomAccessFile
-					.readInt());
+			biYPelsPerMeter = ByteSwapper.swap(randomAccessFile.readInt());
 
 			// biClrUsed 4 Number Color Map entries that are actually used
 			biClrUsed = ByteSwapper.swap(randomAccessFile.readInt());
 			// biClrImportant 4 Number of significant colors
 
-			biClrImportant = ByteSwapper.swap(randomAccessFile
-					.readInt());
-			
-			randomAccessFile.seek(offSet); //Por las dudas
-			System.out.println(offSet);
-			
-			
-//			randomAccessFile quedo apuntando a los pixeles de la imagen
-		} catch (IOException e) {
-			System.out.println("Not Found");
+			biClrImportant = ByteSwapper.swap(randomAccessFile.readInt());
 
+			randomAccessFile.seek(offSet); // Por las dudas
+			// System.out.println(offSet);
+
+			// randomAccessFile quedo apuntando a los pixeles de la imagen
+		} catch (IOException e) {
+			System.out.println("Error al generar la sombra de id=" + i);
 		}
 	}
 
@@ -125,77 +126,64 @@ public class BMPHeader {
 	public void setBiSizeImage(int biSizeImage) {
 		this.biSizeImage = biSizeImage;
 	}
-	
+
 	public short getSeed() {
 		return seed;
 	}
-	
-	public RandomAccessFile save(String filename, int width, int height, short seed, short shadeNumber){
+
+	public RandomAccessFile save(String filename, int width, int height,
+			short seed, short shadeNumber) {
 		try {
 			randomAccessFile = new RandomAccessFile(filename, "rw");
-			
-//			int i = 0;
-//			while (i < offSet) {
-//				randomAccessFile.writeByte(0);
-//				i++;
-//			}
+
+			// int i = 0;
+			// while (i < offSet) {
+			// randomAccessFile.writeByte(0);
+			// i++;
+			// }
 			randomAccessFile.seek(0);
-			
+
 			int colorPaletteLen = 256 * 4;
 			int headerLen = 54;
-			
 
 			randomAccessFile.writeChar(id);
-			randomAccessFile.writeInt(ByteSwapper.swap(headerLen + colorPaletteLen + width * height));
+			randomAccessFile.writeInt(ByteSwapper.swap(headerLen
+					+ colorPaletteLen + width * height));
 			randomAccessFile.writeShort(ByteSwapper.swap(seed));
 
 			randomAccessFile.writeShort(ByteSwapper.swap(shadeNumber));
-			randomAccessFile.writeInt(ByteSwapper.swap(headerLen + colorPaletteLen));
-			
+			randomAccessFile.writeInt(ByteSwapper.swap(headerLen
+					+ colorPaletteLen));
+
 			randomAccessFile.writeInt(ByteSwapper.swap(40));
 			randomAccessFile.writeInt(ByteSwapper.swap(width));
 			randomAccessFile.writeInt(ByteSwapper.swap(height));
 
-			randomAccessFile.writeShort(ByteSwapper.swap((short)1)); //Color planes
-			randomAccessFile.writeShort(ByteSwapper.swap((short)8)); //Bits per pixel
-			
-			randomAccessFile.writeInt(0); //No compression
-			
-			randomAccessFile.writeInt(ByteSwapper.swap(width * height)); //Image Size
-			
-			randomAccessFile.writeInt(ByteSwapper.swap(2835)); //Pixels Per mt
-			randomAccessFile.writeInt(ByteSwapper.swap(2835)); //Pixels Per mt
-			randomAccessFile.writeInt(ByteSwapper.swap(256)); //Color palette
-			randomAccessFile.writeInt(0); //Important Colors
-			
-			//Write Palette
+			randomAccessFile.writeShort(ByteSwapper.swap((short) 1)); // Color planes
+			randomAccessFile.writeShort(ByteSwapper.swap((short) 8)); // Bits per pixel
+
+			randomAccessFile.writeInt(0); // No compression
+
+			randomAccessFile.writeInt(ByteSwapper.swap(width * height)); // Image Size
+
+			randomAccessFile.writeInt(ByteSwapper.swap(2835)); // Pixels Per mt
+			randomAccessFile.writeInt(ByteSwapper.swap(2835)); // Pixels Per mt
+			randomAccessFile.writeInt(ByteSwapper.swap(256)); // Color palette
+			randomAccessFile.writeInt(0); // Important Colors
+
+			// Write Palette
 			for (int i = 0; i < 256; i++) {
 				randomAccessFile.writeByte(i);
 				randomAccessFile.writeByte(i);
 				randomAccessFile.writeByte(i);
 				randomAccessFile.writeByte(0);
 			}
-			
-//			randomAccessFile.writeByte(ByteSwapper.swap(biPlanes[1]));
-//
-//			randomAccessFile.writeByte(ByteSwapper.swap(biBitCount[0]));
-//			randomAccessFile.writeByte(ByteSwapper.swap(biBitCount[1]));
-//
-//			randomAccessFile.writeInt(ByteSwapper.swap(biCompression));
-//			randomAccessFile.writeInt(ByteSwapper.swap(biSizeImage));
-//
-//			randomAccessFile.writeInt(ByteSwapper.swap(biXPelsPerMeter));
-//			randomAccessFile.writeInt(ByteSwapper.swap(biYPelsPerMeter));
-//			randomAccessFile.writeInt(ByteSwapper.swap(biClrUsed));
-//
-//			randomAccessFile.writeInt(ByteSwapper.swap(biClrImportant));
 
-			randomAccessFile.seek(headerLen + colorPaletteLen); //Por las dudas
-			
-			
+			randomAccessFile.seek(headerLen + colorPaletteLen); // Por las dudas
+
 			return randomAccessFile;
 		} catch (IOException e) {
-			System.out.println("Not Found");
+			System.out.println("Error al leer el archivo " + filename);
 
 		}
 		return null;
